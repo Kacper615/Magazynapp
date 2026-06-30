@@ -25,8 +25,8 @@ Aplikacja webowa do ewidencji towarów stworzona w technologii **Blazor Server (
 
 1. Pobierz lub sklonuj repozytorium.
 2. Otwórz plik `MagazynApp.sln` w programie Visual Studio **lub** w terminalu przejdź do folderu `MagazynApp` i uruchom `dotnet run --launch-profile https`. LUB za pomocą terminala:
-cd /d "D:\projekt studia\MagazynApp\MagazynApp"
-dotnet restore
+cd /d "D:\projekt studia\MagazynApp\MagazynApp";
+dotnet restore;
 dotnet run --launch-profile https
 3. Otwórz przeglądarkę pod adresem **https://localhost:7280** (lub http://localhost:5280).
 4. Skompiluj i uruchom projekt (F5 w Visual Studio).
