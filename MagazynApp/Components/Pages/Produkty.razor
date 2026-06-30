@@ -1,0 +1,128 @@
+@page "/produkty"
+@inject MagazynContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>Produkty - MagazynApp</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1>Produkty w magazynie</h1>
+        <p class="text-muted">Zarządzaj asortymentem — dodawaj, edytuj i usuwaj produkty.</p>
+    </div>
+    <a class="btn btn-primary" href="produkty/dodaj">+ Dodaj produkt</a>
+</div>
+
+<div class="card mb-3">
+    <div class="search-row">
+        <input type="text" class="form-control" placeholder="Szukaj po nazwie lub kategorii..."
+               @bind="frazaWyszukiwania" @bind:event="oninput" />
+        <select class="form-select" @bind="wybranaKategoria">
+            <option value="">Wszystkie kategorie</option>
+            @foreach (var kategoria in kategorie)
+            {
+                <option value="@kategoria">@kategoria</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (produkty is null)
+{
+    <p>Ładowanie...</p>
+}
+else if (!FiltrowaneProdukty.Any())
+{
+    <div class="card empty-state">
+        <p>Brak produktów spełniających kryteria wyszukiwania.</p>
+        <a class="btn btn-outline" href="produkty/dodaj">Dodaj pierwszy produkt</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Kategoria</th>
+                    <th>Ilość</th>
+                    <th>Cena</th>
+                    <th>Wartość</th>
+                    <th>Data dodania</th>
+                    <th class="actions-col">Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produkt in FiltrowaneProdukty)
+                {
+                    <tr>
+                        <td>
+                            <strong>@produkt.Nazwa</strong>
+                            @if (!string.IsNullOrWhiteSpace(produkt.Opis))
+                            {
+                                <div class="text-muted small">@produkt.Opis</div>
+                            }
+                        </td>
+                        <td><span class="badge badge-category">@produkt.Kategoria</span></td>
+                        <td>@produkt.Ilosc szt.</td>
+                        <td>@produkt.Cena.ToString("N2") zł</td>
+                        <td>@((produkt.Ilosc * produkt.Cena).ToString("N2")) zł</td>
+                        <td>@produkt.DataDodania.ToString("dd.MM.yyyy")</td>
+                        <td class="actions-col">
+                            <a class="btn btn-sm btn-outline" href="produkty/edytuj/@produkt.Id">Edytuj</a>
+                            <button class="btn btn-sm btn-danger" @onclick="() => UsunProdukt(produkt)">Usuń</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(komunikat))
+{
+    <div class="alert alert-success mt-3">@komunikat</div>
+}
+
+@code {
+    private List<Produkt>? produkty;
+    private List<string> kategorie = new();
+    private string frazaWyszukiwania = string.Empty;
+    private string wybranaKategoria = string.Empty;
+    private string? komunikat;
+
+    private IEnumerable<Produkt> FiltrowaneProdukty =>
+        (produkty ?? Enumerable.Empty<Produkt>())
+            .Where(p => string.IsNullOrWhiteSpace(frazaWyszukiwania)
+                || p.Nazwa.Contains(frazaWyszukiwania, StringComparison.OrdinalIgnoreCase)
+                || (p.Opis?.Contains(frazaWyszukiwania, StringComparison.OrdinalIgnoreCase) ?? false)
+                || p.Kategoria.Contains(frazaWyszukiwania, StringComparison.OrdinalIgnoreCase))
+            .Where(p => string.IsNullOrWhiteSpace(wybranaKategoria) || p.Kategoria == wybranaKategoria)
+            .OrderBy(p => p.Nazwa);
+
+    protected override void OnInitialized()
+    {
+        ZaladujProdukty();
+    }
+
+    private void ZaladujProdukty()
+    {
+        produkty = Db.Produkty.AsNoTracking().ToList();
+        kategorie = produkty.Select(p => p.Kategoria).Distinct().OrderBy(k => k).ToList();
+    }
+
+    private async Task UsunProdukt(Produkt produkt)
+    {
+        var encja = await Db.Produkty.FindAsync(produkt.Id);
+        if (encja is null)
+        {
+            return;
+        }
+
+        Db.Produkty.Remove(encja);
+        await Db.SaveChangesAsync();
+
+        komunikat = $"Usunięto produkt: {produkt.Nazwa}";
+        ZaladujProdukty();
+    }
+}

@@ -1,0 +1,27 @@
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">📦 MagazynApp</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Strona główna
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="produkty">
+                <span class="bi bi-box-seam-fill-nav-menu" aria-hidden="true"></span> Produkty
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="produkty/dodaj">
+                <span class="bi bi-plus-circle-fill-nav-menu" aria-hidden="true"></span> Dodaj produkt
+            </NavLink>
+        </div>
+    </nav>
+</div>

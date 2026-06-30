@@ -1,0 +1,53 @@
+@page "/"
+@inject MagazynContext Db
+
+<PageTitle>Strona główna - MagazynApp</PageTitle>
+
+<div class="hero">
+    <h1>System zarządzania magazynem</h1>
+    <p class="lead">
+        Aplikacja webowa w technologii <strong>Blazor Server</strong> z bazą danych
+        <strong>SQLite</strong> i <strong>Entity Framework Core</strong>.
+    </p>
+    <a class="btn btn-primary" href="produkty">Przejdź do produktów</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-value">@liczbaProduktow</span>
+        <span class="stat-label">Produktów w bazie</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">@lacznaIlosc</span>
+        <span class="stat-label">Łączna ilość sztuk</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">@wartoscMagazynu.ToString("N2") zł</span>
+        <span class="stat-label">Wartość magazynu</span>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <h2>Funkcje aplikacji</h2>
+    <ul>
+        <li>Przeglądanie listy produktów</li>
+        <li>Dodawanie nowych produktów</li>
+        <li>Edycja istniejących produktów</li>
+        <li>Usuwanie produktów z magazynu</li>
+        <li>Wyszukiwanie po nazwie i kategorii</li>
+    </ul>
+</div>
+
+@code {
+    private int liczbaProduktow;
+    private int lacznaIlosc;
+    private decimal wartoscMagazynu;
+
+    protected override void OnInitialized()
+    {
+        var produkty = Db.Produkty.AsNoTracking().ToList();
+        liczbaProduktow = produkty.Count;
+        lacznaIlosc = produkty.Sum(p => p.Ilosc);
+        wartoscMagazynu = produkty.Sum(p => p.Ilosc * p.Cena);
+    }
+}

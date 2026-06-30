@@ -1,0 +1,29 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="student-watermark" aria-hidden="true">Kacper Kopaczewski · nr albumu 13030</div>
+
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <span class="badge">System magazynowy</span>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+
+        <footer class="student-footer">
+            Kacper Kopaczewski · nr albumu 13030
+        </footer>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    Wystąpił nieoczekiwany błąd.
+    <a href="" class="reload">Odśwież stronę</a>
+    <a class="dismiss">🗙</a>
+</div>

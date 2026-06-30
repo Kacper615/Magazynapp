@@ -1,0 +1,128 @@
+@page "/produkty/dodaj"
+@page "/produkty/edytuj/{Id:int}"
+@inject MagazynContext Db
+@inject NavigationManager Navigation
+
+<PageTitle>@(CzyEdycja ? "Edycja produktu" : "Nowy produkt") - MagazynApp</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1>@(CzyEdycja ? "Edycja produktu" : "Dodaj nowy produkt")</h1>
+        <p class="text-muted">Wypełnij formularz i zapisz zmiany w bazie danych.</p>
+    </div>
+    <a class="btn btn-outline" href="produkty">← Wróć do listy</a>
+</div>
+
+<div class="card form-card">
+    <EditForm Model="produkt" OnValidSubmit="Zapisz">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="nazwa">Nazwa produktu *</label>
+            <InputText id="nazwa" class="form-control" @bind-Value="produkt.Nazwa" />
+            <ValidationMessage For="() => produkt.Nazwa" />
+        </div>
+
+        <div class="form-group">
+            <label for="opis">Opis</label>
+            <InputTextArea id="opis" class="form-control" rows="3" @bind-Value="produkt.Opis" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="kategoria">Kategoria *</label>
+                <InputText id="kategoria" class="form-control" @bind-Value="produkt.Kategoria" />
+                <ValidationMessage For="() => produkt.Kategoria" />
+            </div>
+            <div class="form-group">
+                <label for="ilosc">Ilość (szt.) *</label>
+                <InputNumber id="ilosc" class="form-control" @bind-Value="produkt.Ilosc" />
+                <ValidationMessage For="() => produkt.Ilosc" />
+            </div>
+            <div class="form-group">
+                <label for="cena">Cena (zł) *</label>
+                <InputNumber id="cena" class="form-control" @bind-Value="produkt.Cena" />
+                <ValidationMessage For="() => produkt.Cena" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(komunikatBledu))
+        {
+            <div class="alert alert-error">@komunikatBledu</div>
+        }
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Zapisz</button>
+            <a class="btn btn-outline" href="produkty">Anuluj</a>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Produkt produkt = new();
+    private string? komunikatBledu;
+    private bool CzyEdycja => Id.HasValue;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CzyEdycja)
+        {
+            var istniejacy = await Db.Produkty.FindAsync(Id);
+            if (istniejacy is null)
+            {
+                Navigation.NavigateTo("produkty");
+                return;
+            }
+
+            produkt = new Produkt
+            {
+                Id = istniejacy.Id,
+                Nazwa = istniejacy.Nazwa,
+                Opis = istniejacy.Opis,
+                Kategoria = istniejacy.Kategoria,
+                Ilosc = istniejacy.Ilosc,
+                Cena = istniejacy.Cena,
+                DataDodania = istniejacy.DataDodania
+            };
+        }
+    }
+
+    private async Task Zapisz()
+    {
+        komunikatBledu = null;
+
+        try
+        {
+            if (CzyEdycja)
+            {
+                var encja = await Db.Produkty.FindAsync(produkt.Id);
+                if (encja is null)
+                {
+                    komunikatBledu = "Nie znaleziono produktu do edycji.";
+                    return;
+                }
+
+                encja.Nazwa = produkt.Nazwa;
+                encja.Opis = produkt.Opis;
+                encja.Kategoria = produkt.Kategoria;
+                encja.Ilosc = produkt.Ilosc;
+                encja.Cena = produkt.Cena;
+            }
+            else
+            {
+                produkt.DataDodania = DateTime.Now;
+                Db.Produkty.Add(produkt);
+            }
+
+            await Db.SaveChangesAsync();
+            Navigation.NavigateTo("produkty");
+        }
+        catch (Exception ex)
+        {
+            komunikatBledu = $"Błąd zapisu: {ex.Message}";
+        }
+    }
+}

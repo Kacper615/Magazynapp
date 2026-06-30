@@ -1,0 +1,33 @@
+## Visual Studio
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+*.cache
+*.log
+
+## .NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## SQLite
+*.db
+*.db-shm
+*.db-wal
+
+## IDE
+.idea/
+
+## Jednorazowe skrypty setup
+_setup.bat
+wgraj-na-github.bat
